@@ -1,6 +1,11 @@
-from pydantic import BaseModel, EmailStr, ConfigDict #thanks to BaseModel we can check the input of a client
 from datetime import datetime
-from typing import Optional, Literal
+from typing import Literal
+
+from pydantic import (  # thanks to BaseModel we can check the input of a client
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+)
 
 
 class UserCreate(BaseModel):
@@ -13,7 +18,9 @@ class UserResponce(BaseModel):
     email: EmailStr
     created_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)  #we need it here so it converts sqlalchemy model to dictionary
+    model_config = ConfigDict(
+        from_attributes=True
+    )  # we need it here so it converts sqlalchemy model to dictionary
 
 
 class UserLogin(BaseModel):
@@ -21,11 +28,10 @@ class UserLogin(BaseModel):
     password: str
 
 
-
 class PostBase(BaseModel):
     title: str
     content: str
-    published: bool = True 
+    published: bool = True
 
 
 class PostCreate(PostBase):
@@ -38,7 +44,9 @@ class PostResponce(PostBase):
     owner_id: int
     owner: UserResponce
 
-    model_config = ConfigDict(from_attributes=True)  #we need it here so it converts sqlalchemy model to dictionary
+    model_config = ConfigDict(
+        from_attributes=True
+    )  # we need it here so it converts sqlalchemy model to dictionary
 
 
 class Token(BaseModel):
@@ -47,7 +55,7 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    id: Optional[int] = None
+    id: int | None = None
 
 
 class Vote(BaseModel):
