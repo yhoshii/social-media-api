@@ -78,7 +78,6 @@ class CommentResponse(Comment):
     id: int
     post_id: int
     owner_id: int
-    owner: UserResponce
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
