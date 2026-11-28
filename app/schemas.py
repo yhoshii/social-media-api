@@ -38,11 +38,18 @@ class PostCreate(PostBase):
     pass
 
 
-class PostResponce(PostBase):
+class Post(PostBase):
     id: int
     created_at: datetime
     owner_id: int
     owner: UserResponce
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PostResponce(BaseModel):
+    Post: Post
+    votes: int
 
     model_config = ConfigDict(
         from_attributes=True
@@ -61,3 +68,17 @@ class TokenData(BaseModel):
 class Vote(BaseModel):
     post_id: int
     dir: Literal[0, 1]
+
+
+class Comment(BaseModel):
+    comment: str
+
+
+class CommentResponse(Comment):
+    id: int
+    post_id: int
+    owner_id: int
+    owner: UserResponce
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

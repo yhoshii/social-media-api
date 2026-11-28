@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
-from sqlalchemy import update
+from sqlalchemy import func, update
 from sqlalchemy.orm import Session
 
 from app import models, oauth2, schemas
@@ -17,7 +17,9 @@ def get_posts(
     search: str | None = "",
 ):
     posts = (
-        db.query(models.Post)
+        db.query(models.Post, func.count(models.Vote.post_id).label("votes"))
+        .join(models.Vote, models.Vote.post_id == models.Post.id, isouter=True)
+        .group_by(models.Post.id)
         .filter(models.Post.title.contains(search))
         .limit(limit)
         .all()
@@ -29,7 +31,13 @@ def get_posts(
 def get_post(
     id: int, db: Session = Depends(get_db), curr_user=Depends(oauth2.get_current_user)
 ):
-    post = db.query(models.Post).filter(models.Post.id == id).first()
+    post = (
+        db.query(models.Post, func.count(models.Vote.post_id).label("votes"))
+        .join(models.Vote, models.Vote.post_id == models.Post.id, isouter=True)
+        .group_by(models.Post.id)
+        .filter(models.Post.id == id)
+        .first()
+    )
 
     if not post:
         raise HTTPException(
@@ -66,7 +74,7 @@ def delete_post(
     post_query = db.query(models.Post).filter(models.Post.id == id)
     post = post_query.first()
 
-    if not post:
+    if post is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"post with id {id} does not exist",
